@@ -22,6 +22,50 @@ services:
       - cephid-network
     restart: on-failure
 
+  cephid-kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    platform: linux/arm64
+    container_name: cephid-kafka
+    environment:
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9094,PLAINTEXT_HOST://:29094,CONTROLLER://:9095
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cephid-kafka:9094,PLAINTEXT_HOST://localhost:29094
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@cephid-kafka:9095"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    volumes:
+      - cephid_kafka_data:/var/lib/kafka/data
+    ports:
+      - "9094:9094"
+      - "29094:29094"
+    networks:
+      - cephid-network
+
+  cephid-kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    platform: linux/arm64
+    container_name: cephid-kafka-ui
+    depends_on:
+      - cephid-kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: cephid
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: cephid-kafka:9094
+      KAFKA_CLUSTERS_0_READONLY: "false"
+    ports:
+      - "8080:8080"
+    networks:
+      - cephid-network
+
 networks:
   cephid-network:
     driver: bridge
+
+volumes:
+  cephid_kafka_data:
