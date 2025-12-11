@@ -18,3 +18,10 @@ message RegisterResponse {
   string message = 2;
   string userId = 3;
 }
+
+// to pblsh to kafka topic "user_registered"
+message UserRegisteredEvent {
+  string userId = 1;
+  string email = 2;
+  int64 timestamp = 3;
+}
