@@ -67,6 +67,21 @@ services:
     networks:
       - cephid-network
 
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    env_file:
+      - notification-service/.env
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=cephid-kafka:9094
+    depends_on:
+      - cephid-kafka
+    networks:
+      - cephid-network
+    restart: on-failure
+
 networks:
   cephid-network:
     driver: bridge

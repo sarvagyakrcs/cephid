@@ -1,0 +1,5 @@
+# Generated protobuf files (regenerate with `make proto`)
+pb/*.pb.go
+
+# Binary
+notification-service
