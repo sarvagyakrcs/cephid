@@ -80,5 +80,4 @@ sourceSets {
 
 tasks.test {
     useJUnitPlatform()
-    failOnNoDiscoveredTests = false
 }
