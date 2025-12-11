@@ -38,8 +38,11 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    // kafka
+    // Kafka
     implementation("org.springframework.kafka:spring-kafka")
+
+    // Coroutines (for awaiting Kafka futures)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1")
 }
 
 protobuf {
