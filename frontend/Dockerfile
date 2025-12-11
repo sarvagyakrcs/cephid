@@ -6,7 +6,7 @@ WORKDIR /app
 
 # ---- Dependencies ----
 FROM base AS deps
-COPY package.json bun.lock ./
+COPY frontend/package.json frontend/bun.lock ./
 RUN bun install --frozen-lockfile
 
 # ---- Builder ----
@@ -16,10 +16,11 @@ FROM base AS builder
 RUN apt-get update && apt-get install -y protobuf-compiler && rm -rf /var/lib/apt/lists/*
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY frontend/ .
+COPY proto/ /proto/
 
-# Generate proto types
-RUN bun run proto:generate
+# Generate proto types (use absolute path in Docker)
+RUN protoc --proto_path=/proto --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=grpc-js --ts_proto_opt=esModuleInterop=true /proto/*.proto
 
 # Build the Next.js app
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -42,4 +43,3 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["bun", "server.js"]
-

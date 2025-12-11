@@ -69,6 +69,9 @@ protobuf {
 
 sourceSets {
     main {
+        proto {
+            srcDir("../proto")
+        }
         java.srcDirs(
             "build/generated/source/proto/main/grpc",
             "build/generated/source/proto/main/grpckt",

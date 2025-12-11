@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "proto:generate": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=grpc-js --ts_proto_opt=esModuleInterop=true ./proto/*.proto"
+    "proto:generate": "protoc --proto_path=../proto --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/generated --ts_proto_opt=outputServices=grpc-js --ts_proto_opt=esModuleInterop=true ../proto/*.proto",
+    "postinstall": "bun run proto:generate"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.10.1",
@@ -15,7 +16,8 @@
     "@grpc/proto-loader": "^0.8.0",
     "next": "16.0.8",
     "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react-dom": "19.2.1",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

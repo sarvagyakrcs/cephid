@@ -1,6 +1,7 @@
 FROM gradle:8.11-jdk17 AS builder
 WORKDIR /app
-COPY . .
+COPY backend/ .
+COPY proto/ ../proto/
 RUN gradle build -x test --no-daemon
 
 FROM eclipse-temurin:17-jre
