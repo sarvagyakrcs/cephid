@@ -1,0 +1,28 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "9090:9090"
+    networks:
+      - cephid-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - GRPC_HOST=backend:9090
+    depends_on:
+      - backend
+    networks:
+      - cephid-network
+    restart: on-failure
+
+networks:
+  cephid-network:
+    driver: bridge
+
