@@ -34,6 +34,13 @@ export interface RegisterResponse {
   userId: string;
 }
 
+/** to pblsh to kafka topic "user_registered" */
+export interface UserRegisteredEvent {
+  userId: string;
+  email: string;
+  timestamp: number;
+}
+
 function createBaseRegisterRequest(): RegisterRequest {
   return { username: "", email: "", password: "" };
 }
@@ -218,6 +225,98 @@ export const RegisterResponse: MessageFns<RegisterResponse> = {
   },
 };
 
+function createBaseUserRegisteredEvent(): UserRegisteredEvent {
+  return { userId: "", email: "", timestamp: 0 };
+}
+
+export const UserRegisteredEvent: MessageFns<UserRegisteredEvent> = {
+  encode(message: UserRegisteredEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "") {
+      writer.uint32(10).string(message.userId);
+    }
+    if (message.email !== "") {
+      writer.uint32(18).string(message.email);
+    }
+    if (message.timestamp !== 0) {
+      writer.uint32(24).int64(message.timestamp);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UserRegisteredEvent {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUserRegisteredEvent();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.timestamp = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UserRegisteredEvent {
+    return {
+      userId: isSet(object.userId) ? globalThis.String(object.userId) : "",
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      timestamp: isSet(object.timestamp) ? globalThis.Number(object.timestamp) : 0,
+    };
+  },
+
+  toJSON(message: UserRegisteredEvent): unknown {
+    const obj: any = {};
+    if (message.userId !== "") {
+      obj.userId = message.userId;
+    }
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.timestamp !== 0) {
+      obj.timestamp = Math.round(message.timestamp);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UserRegisteredEvent>, I>>(base?: I): UserRegisteredEvent {
+    return UserRegisteredEvent.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UserRegisteredEvent>, I>>(object: I): UserRegisteredEvent {
+    const message = createBaseUserRegisteredEvent();
+    message.userId = object.userId ?? "";
+    message.email = object.email ?? "";
+    message.timestamp = object.timestamp ?? 0;
+    return message;
+  },
+};
+
 export type OnboardingServiceService = typeof OnboardingServiceService;
 export const OnboardingServiceService = {
   registerUser: {
@@ -273,6 +372,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;
