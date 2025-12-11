@@ -7,7 +7,8 @@ WORKDIR /app
 # ---- Dependencies ----
 FROM base AS deps
 COPY frontend/package.json frontend/bun.lock ./
-RUN bun install --frozen-lockfile
+# Skip postinstall scripts (proto:generate needs protoc which isn't in this stage)
+RUN bun install --frozen-lockfile --ignore-scripts
 
 # ---- Builder ----
 FROM base AS builder

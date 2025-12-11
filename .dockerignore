@@ -1,0 +1,22 @@
+# Dependencies
+**/node_modules
+**/.gradle
+**/build
+
+# Next.js
+**/.next
+**/out
+
+# IDE
+**/.idea
+**/.vscode
+
+# Git
+.git
+.gitignore
+
+# Misc
+**/*.log
+**/.DS_Store
+**/README.md
+
