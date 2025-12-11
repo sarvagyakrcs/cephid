@@ -1,31 +1,20 @@
 import * as grpc from '@grpc/grpc-js';
-import * as protoLoader from '@grpc/proto-loader';
-import path from 'path';
+import { PingServiceClient } from '@/generated/proto/ping';
 
-const PROTO_PATH = path.join(process.cwd(), 'proto/ping.proto');
-
-const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-  keepCase: true,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-});
-
-const grpcObject = grpc.loadPackageDefinition(packageDefinition) as grpc.GrpcObject & {
-  com: { example: { grpc: { PingService: grpc.ServiceClientConstructor } } };
-};
-const pingPackage = grpcObject.com.example.grpc;
+const GRPC_HOST = process.env.GRPC_HOST || 'localhost:9090';
 
 // Singleton
-let client: grpc.Client | null = null;
+let client: PingServiceClient | null = null;
 
-export const getGrpcClient = () => {
+export const getGrpcClient = (): PingServiceClient => {
   if (!client) {
-    client = new pingPackage.PingService(
-      'localhost:9090', // Docker port
+    client = new PingServiceClient(
+      GRPC_HOST,
       grpc.credentials.createInsecure()
     );
   }
   return client;
 };
+
+// Re-export types for convenience
+export type { PingRequest, PingReply, PingServiceClient } from '@/generated/proto/ping';
