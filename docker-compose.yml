@@ -5,6 +5,10 @@ services:
       dockerfile: backend/Dockerfile
     ports:
       - "9090:9090"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=cephid-kafka:9094
+    depends_on:
+      - cephid-kafka
     networks:
       - cephid-network
 
